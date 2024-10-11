@@ -1,0 +1,2 @@
+picamera2==0.3.22
+pyTelegramBotAPI==4.23.0
