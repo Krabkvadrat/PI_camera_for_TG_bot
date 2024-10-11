@@ -12,9 +12,9 @@ import os
 import subprocess
 
 
-from settings import token
+from settings import TOKEN
 
-bot = telebot.TeleBot(token)
+bot = telebot.TeleBot(TOKEN)
 
 directory = os.path.dirname(os.path.abspath(__file__))
 
