@@ -102,7 +102,7 @@ def handle_start_command(message):
         "Welcome! Choose an option:",
         reply_markup=create_main_keyboard()
     )
-    log_interaction(message.from_user.id, "start")
+    log_interaction(message.from_user.username, "start")
 
 @bot.message_handler(func=lambda message: message.text == "📹 Record Video")
 def handle_video_command(message):
@@ -113,7 +113,7 @@ def handle_video_command(message):
         reply_markup=ReplyKeyboardRemove()  # Hide the keyboard
     )
     bot.register_next_step_handler(message, process_video_duration)
-    log_interaction(message.from_user.id, "record_video")
+    log_interaction(message.from_user.username, "record_video")
 
 
 def process_video_duration(message):
@@ -152,7 +152,7 @@ def process_video_duration(message):
 @bot.message_handler(func=lambda message: message.text == "📸 Capture Photo")
 def handle_camera_command(message):
     """Handle capturing a photo."""
-    log_interaction(message.from_user.id, "capture_photo")
+    log_interaction(message.from_user.username, "capture_photo")
 
     bot.send_message(message.chat.id, "Capturing photo...", reply_markup=ReplyKeyboardRemove())
     try:
@@ -179,7 +179,7 @@ def handle_camera_command(message):
 @bot.message_handler(func=lambda message: message.text == "🎥 Show Latest Video")
 def handle_show_video_command(message):
     """Send the latest video."""
-    log_interaction(message.from_user.id, "show_latest_video")
+    log_interaction(message.from_user.username, "show_latest_video")
 
     bot.send_message(message.chat.id, "Fetching the latest video...", reply_markup=ReplyKeyboardRemove())
     send_latest_media_file(VIDEO_DIR, message, 'video')
@@ -188,7 +188,7 @@ def handle_show_video_command(message):
 @bot.message_handler(func=lambda message: message.text == "🖼️ Show Latest Photo")
 def handle_photo_command(message):
     """Send the latest photo."""
-    log_interaction(message.from_user.id, "show_latest_photo")
+    log_interaction(message.from_user.username, "show_latest_photo")
 
     bot.send_message(message.chat.id, "Fetching the latest photo...", reply_markup=ReplyKeyboardRemove())
     send_latest_media_file(IMAGE_DIR, message, 'photo')
