@@ -20,7 +20,7 @@ def fetch_last_five_rows():
         if rows:
             print("Last 5 interactions:")
             for row in rows:
-                print(f"ID: {row[0]}, User ID: {row[1]}, Chat ID: {row[2]}, Timestamp: {row[3]}, Command: {row[4]}, Details: {row[5]}")
+                print(f"ID: {row[0]}, User ID: {row[1]}, Timestamp: {row[2]}, Command: {row[3]}")
         else:
             print("No data found in the interactions table.")
 
