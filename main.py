@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import sqlite3
 from time import sleep
 from datetime import datetime
 from picamera2 import Picamera2
@@ -42,6 +43,7 @@ def log_interaction(user_id, command, DB_FILE = "bot_interactions.db"):
         print(f"Error logging interaction: {e}")
     finally:
         conn.close()
+
 def create_main_keyboard():
     """Create the main menu keyboard."""
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
@@ -100,7 +102,7 @@ def handle_start_command(message):
         "Welcome! Choose an option:",
         reply_markup=create_main_keyboard()
     )
-    log_interaction(message.from_user.id, "/start")
+    log_interaction(message.from_user.id, "start")
 
 @bot.message_handler(func=lambda message: message.text == "📹 Record Video")
 def handle_video_command(message):
