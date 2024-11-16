@@ -36,7 +36,7 @@ def log_interaction(user_id, command, DB_FILE = "bot_interactions.db"):
         cursor.execute("""
             INSERT INTO interactions (user_id, timestamp, command)
             VALUES (?, ?, ?)
-        """, (user_id, timestamp, command, details))
+        """, (user_id, timestamp, command))
 
         conn.commit()
     except Exception as e:
