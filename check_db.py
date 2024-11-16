@@ -12,7 +12,7 @@ def fetch_last_five_rows():
 
         # SQL query to fetch the last 5 rows
         cursor.execute("""
-            SELECT * FROM interactions ORDER BY timestamp DESC LIMIT 5;
+            SELECT * FROM interactions ORDER BY timestamp DESC;
         """)
 
         # Fetch the rows and display them
