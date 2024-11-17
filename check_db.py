@@ -4,23 +4,51 @@ import sqlite3
 DB_FILE = "bot_interactions.db"
 
 def fetch_last_five_rows():
-    """Fetch and display the last 5 rows from the interactions table."""
+    """Fetch and display info about users."""
     try:
         # Connect to the SQLite database
         conn = sqlite3.connect(DB_FILE)
         cursor = conn.cursor()
 
-        # SQL query to fetch the last 5 rows
         cursor.execute("""
-            SELECT * FROM interactions ORDER BY timestamp DESC;
+           SELECT
+               id, 
+               user_id,
+               timestamp,
+               command
+           FROM
+               (
+                   SELECT
+                       id,
+                       user_id,
+                       timestamp,
+                       command,
+                       ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY TIMESTAMP DESC) AS rn
+                   FROM
+                       interactions
+               ) t
+           WHERE
+               rn = 1;
         """)
 
         # Fetch the rows and display them
         rows = cursor.fetchall()
         if rows:
-            print("Last 5 interactions:")
+            # Define headers
+            headers = ["Last action ID", "User name", "Timestamp", "Command"]
+
+            # Calculate column widths
+            col_widths = [max(len(str(row[i])) for row in rows) for i in range(len(headers))]
+            col_widths = [max(len(header), width) for header, width in zip(headers, col_widths)]
+
+            # Print the table header
+            header_row = " | ".join(f"{header:<{col_widths[i]}}" for i, header in enumerate(headers))
+            print(header_row)
+            print("-" * len(header_row))
+
+            # Print the table rows
             for row in rows:
-                print(f"ID: {row[0]}, User ID: {row[1]}, Timestamp: {row[2]}, Command: {row[3]}")
+                print(" | ".join(f"{str(row[i]):<{col_widths[i]}}" for i in range(len(headers))))
         else:
             print("No data found in the interactions table.")
 
