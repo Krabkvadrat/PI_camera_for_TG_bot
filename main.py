@@ -135,7 +135,6 @@ def process_video_duration(message):
                 picam2 = Picamera2()
                 picam2.video_configuration.size = VIDEO_SIZE
                 picam2.start_and_record_video(output_file, duration=duration, quality=Quality.VERY_HIGH)
-                bot.send_message(message.chat.id, f"Recording {duration} seconds video...")
 
                 sleep(duration)
             finally:

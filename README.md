@@ -1,1 +1,1 @@
-Don't forget to create `setting.py` file with bot **TOKEN** variable
+Don't forget to create `setting.py` file with bot **TOKEN** variable and deploy database 
