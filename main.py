@@ -8,6 +8,7 @@ from picamera2.encoders import Quality
 import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from settings import TOKEN
+import threading
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -115,9 +116,11 @@ def handle_video_command(message):
     bot.register_next_step_handler(message, process_video_duration)
     log_interaction(message.from_user.username, "record_video")
 
+camera_lock = threading.Lock()
 
 def process_video_duration(message):
     """Process the video duration input."""
+
     try:
         duration = int(message.text)
         if duration < 2 or duration > 30:
@@ -127,19 +130,26 @@ def process_video_duration(message):
         bot.send_message(message.chat.id, f"Recording {duration} seconds video...")
         now = datetime.now().strftime('%Y%m%d_%H_%M_%S')
         output_file = os.path.join(VIDEO_DIR, f"{now}_now.mp4")
+        if camera_lock.acquire(timeout=10):
+            try:
+                picam2 = Picamera2()
+                picam2.video_configuration.size = VIDEO_SIZE
+                picam2.start_and_record_video(output_file, duration=duration, quality=Quality.VERY_HIGH)
+                bot.send_message(message.chat.id, f"Recording {duration} seconds video...")
 
-        try:
-            picam2 = Picamera2()
-            picam2.video_configuration.size = VIDEO_SIZE
-            picam2.start_and_record_video(output_file, duration=duration, quality=Quality.VERY_HIGH)
+                sleep(duration)
+            finally:
+                picam2.stop_recording()
+                picam2.close()
+                camera_lock.release()
 
-            sleep(duration)
-        finally:
-            picam2.stop_recording()
-            picam2.close()
 
-        bot.send_message(message.chat.id, "Video ready")
-        send_latest_media_file(VIDEO_DIR, message, 'video')
+            bot.send_message(message.chat.id, "Video ready")
+            send_latest_media_file(VIDEO_DIR, message, 'video')
+
+        else:
+            bot.send_message(message.chat.id, "Camera is currently in use. Please try again later.")
+
 
     except ValueError:
         bot.send_message(message.chat.id, "Invalid input! Please enter a valid number.")
@@ -154,10 +164,11 @@ def handle_camera_command(message):
     log_interaction(message.from_user.username, "capture_photo")
 
     bot.send_message(message.chat.id, "Capturing photo...", reply_markup=ReplyKeyboardRemove())
-    try:
-        now = datetime.now().strftime('%Y%m%d_%H_%M_%S')
-        photo_path = os.path.join(IMAGE_DIR, f"{now}.jpg")
 
+    now = datetime.now().strftime('%Y%m%d_%H_%M_%S')
+    photo_path = os.path.join(IMAGE_DIR, f"{now}.jpg")
+
+    if camera_lock.acquire(timeout=10):
         try:
             picam2 = Picamera2()
             camera_config = picam2.create_still_configuration(main={"size": PHOTO_SIZE})
@@ -165,14 +176,20 @@ def handle_camera_command(message):
             picam2.start()
             sleep(2)
             picam2.capture_file(photo_path)
+            bot.send_message(message.chat.id, "Photo captured")
+            send_latest_media_file(IMAGE_DIR, message, 'photo')
+
+        except Exception as e:
+            bot.send_message(message.chat.id, f"Error: {e}")
+
         finally:
             picam2.close()
+            camera_lock.release()
+    else:
+        bot.send_message(message.chat.id, "Camera is currently in use. Please try again later.")
 
-        bot.send_message(message.chat.id, "Photo captured")
-        send_latest_media_file(IMAGE_DIR, message, 'photo')
 
-    except Exception as e:
-        bot.send_message(message.chat.id, f"Error: {e}")
+
 
 
 @bot.message_handler(func=lambda message: message.text == "🎥 Show Latest Video")
