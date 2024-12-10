@@ -80,7 +80,7 @@ def send_latest_media_file(path: str, message, media_type: str):
         # Redisplay the main menu keyboard after sending the media
         bot.send_message(
             message.chat.id,
-            "Choose another option:",
+            "Choose an option:",
             reply_markup=create_main_keyboard()
         )
 
@@ -127,7 +127,7 @@ def process_video_duration(message):
             bot.send_message(message.chat.id, "Duration must be between 2 and 30 seconds. Try again.")
             bot.register_next_step_handler(message, process_video_duration)
             return
-
+        bot.send_message(message.chat.id, f"Recording {duration} seconds video...")
         now = datetime.now().strftime('%Y%m%d_%H_%M_%S')
         output_file = os.path.join(VIDEO_DIR, f"{now}_now.mp4")
         if camera_lock.acquire(timeout=10):
@@ -142,6 +142,7 @@ def process_video_duration(message):
                 picam2.stop_recording()
                 picam2.close()
                 camera_lock.release()
+
 
             bot.send_message(message.chat.id, "Video ready")
             send_latest_media_file(VIDEO_DIR, message, 'video')

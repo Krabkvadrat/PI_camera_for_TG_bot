@@ -33,3 +33,5 @@ Thumbs.db
 images/
 videos/
 settings.py
+*.db
+*.out
