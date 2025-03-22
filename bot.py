@@ -21,15 +21,11 @@ class PiCameraBot:
 
     def create_main_keyboard(self):
         """Create the main menu keyboard."""
-        markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-        markup.add(
-            KeyboardButton("📹 Record Video"),
-            KeyboardButton("📸 Capture Photo"),
-        )
-        markup.add(
-            KeyboardButton("🎥 Show Latest Video"),
-            KeyboardButton("🖼️ Show Latest Photo")
-        )
+        keyboard = [
+            ["📹 Record Video", "📸 Capture Photo"],
+            ["🎥 Show Latest Video", "🖼️ Show Latest Photo"]
+        ]
+        markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
         return markup
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
