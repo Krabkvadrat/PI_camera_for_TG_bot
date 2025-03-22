@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    container_name: pi_camera_bot
+    volumes:
+      - ./images:/app/images
+      - ./videos:/app/videos
+      - ./logs:/app/logs
+    devices:
+      - /dev/video0:/dev/video0
+    restart: unless-stopped
+    privileged: true  # Required for camera access 
