@@ -14,8 +14,8 @@ CAMERA_TIMEOUT = 10  # seconds
 CAMERA_WARMUP = 2    # seconds
 
 # File management
-FILES_LIMIT_VIDEO = 10
-FILES_LIMIT_IMAGE = 20
+FILES_LIMIT_VIDEO = 4
+FILES_LIMIT_IMAGE = 4
 FILE_DATE_FORMAT = '%Y%m%d_%H_%M_%S'
 
 # Bot settings

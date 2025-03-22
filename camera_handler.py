@@ -7,12 +7,14 @@ from config import (
     VIDEO_SIZE, PHOTO_SIZE, CAMERA_TIMEOUT, CAMERA_WARMUP,
     VIDEO_DIR, IMAGE_DIR, FILE_DATE_FORMAT
 )
+from file_manager import FileManager
 
 logger = logging.getLogger(__name__)
 
 class CameraHandler:
     def __init__(self):
         self.camera_lock = threading.Lock()
+        self.file_manager = FileManager()
         self._ensure_directories()
 
     def _ensure_directories(self):
@@ -44,6 +46,7 @@ class CameraHandler:
             logger.debug("Camera initialized for video recording")
             
             camera.start_and_record_video(str(output_file), duration=duration, quality=Quality.VERY_HIGH)
+            self.file_manager.cleanup_old_files()  # Clean up old files after recording
             return str(output_file)
 
         except Exception as e:
@@ -66,6 +69,7 @@ class CameraHandler:
             logger.debug("Camera initialized for photo capture")
             
             camera.capture_file(str(photo_path))
+            self.file_manager.cleanup_old_files()  # Clean up old files after capturing
             return str(photo_path)
 
         except Exception as e:

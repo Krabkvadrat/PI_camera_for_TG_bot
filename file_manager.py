@@ -37,8 +37,10 @@ class FileManager:
         self._cleanup_old_files(VIDEO_DIR, "*.mp4", FILES_LIMIT_VIDEO)
         self._cleanup_old_files(IMAGE_DIR, "*.jpg", FILES_LIMIT_IMAGE)
 
-    def get_latest_files(self, directory: Path, pattern: str, limit: int = 5) -> list:
+    def get_latest_files(self, directory: Path, pattern: str, limit: int = None) -> list:
         """Get list of latest files."""
+        if limit is None:
+            limit = FILES_LIMIT_VIDEO if pattern == "*.mp4" else FILES_LIMIT_IMAGE
         return self._get_file_list(directory, pattern)[:limit]
 
     def get_file_info(self, file_path: Path) -> dict:
