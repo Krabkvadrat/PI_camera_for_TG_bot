@@ -84,7 +84,10 @@ class PiCameraBot:
             )
             logger.info(f"Video sent successfully: {video_path}")
         except ValueError:
-            await update.message.reply_text("Please enter a number")
+            await update.message.reply_text(
+                "Please enter a valid number",
+                reply_markup=ReplyKeyboardRemove()
+            )
             return WAITING_FOR_DURATION
         except Exception as e:
             logger.error(f"Error recording video: {e}", exc_info=True)
@@ -93,7 +96,8 @@ class PiCameraBot:
                 reply_markup=self.create_main_keyboard()
             )
         finally:
-            return ConversationHandler.END
+            if 'duration' in locals() and MIN_VIDEO_DURATION <= duration <= MAX_VIDEO_DURATION:
+                return ConversationHandler.END
 
     async def handle_latest_video(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Show latest video."""
