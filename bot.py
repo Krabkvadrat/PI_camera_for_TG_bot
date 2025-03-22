@@ -4,7 +4,10 @@ from telegram.ext import (
     Application, CommandHandler, MessageHandler, filters,
     ContextTypes, ConversationHandler
 )
-from config import TOKEN, MIN_VIDEO_DURATION, MAX_VIDEO_DURATION
+from config import (
+    TOKEN, MIN_VIDEO_DURATION, MAX_VIDEO_DURATION,
+    IMAGE_DIR, VIDEO_DIR
+)
 from camera_handler import CameraHandler
 from file_manager import FileManager
 
