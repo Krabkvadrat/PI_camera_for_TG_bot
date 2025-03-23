@@ -1,12 +1,12 @@
 import logging
-from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
+from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton, LabeledPrice
 from telegram.ext import (
     Application, CommandHandler, MessageHandler, filters,
-    ContextTypes, ConversationHandler
+    ContextTypes, ConversationHandler, PreCheckoutQueryHandler, CallbackQueryHandler
 )
 from config import (
     TOKEN, MIN_VIDEO_DURATION, MAX_VIDEO_DURATION,
-    IMAGE_DIR, VIDEO_DIR
+    IMAGE_DIR, VIDEO_DIR, PAYMENT_TOKEN
 )
 from camera_handler import CameraHandler
 from file_manager import FileManager
@@ -31,6 +31,45 @@ class PiCameraBot:
         markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
         return markup
 
+    def create_star_keyboard(self):
+        """Create inline keyboard with star payment button."""
+        keyboard = [[InlineKeyboardButton("⭐ Feed the fish", callback_data="star")]]
+        return InlineKeyboardMarkup(keyboard)
+
+    async def handle_star_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Handle star payment request."""
+        query = update.callback_query
+        await query.answer()
+        
+        # Create invoice for star payment
+        title = "Feed the fish"
+        description = "Send a star to support the fish! 🐠"
+        payload = "star_payment"
+        currency = "XTR"  # Telegram's native currency
+        price = 1  # 1 XTR for one star
+        
+        prices = [LabeledPrice("Star", price * 100)]  # Price in cents
+        
+        await query.message.reply_invoice(
+            title=title,
+            description=description,
+            payload=payload,
+            provider_token=PAYMENT_TOKEN,
+            currency=currency,
+            prices=prices
+        )
+
+    async def pre_checkout_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Handle pre-checkout query."""
+        query = update.pre_checkout_query
+        await query.answer(ok=True)
+
+    async def successful_payment_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Handle successful payment."""
+        await update.message.reply_text(
+            "Thank you for feeding the fish! 🐠 Your star has been received! ⭐"
+        )
+
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Send a message when the command /start is issued."""
         await update.message.reply_text(
@@ -48,6 +87,11 @@ class PiCameraBot:
             await update.message.reply_text(
                 "Choose an option:",
                 reply_markup=self.create_main_keyboard()
+            )
+            # Send star payment request
+            await update.message.reply_text(
+                "Feed the fish",
+                reply_markup=self.create_star_keyboard()
             )
             logger.info(f"Photo sent successfully: {photo_path}")
         except Exception as e:
@@ -81,6 +125,11 @@ class PiCameraBot:
             await update.message.reply_text(
                 "Choose an option:",
                 reply_markup=self.create_main_keyboard()
+            )
+            # Send star payment request
+            await update.message.reply_text(
+                "Feed the fish",
+                reply_markup=self.create_star_keyboard()
             )
             logger.info(f"Video sent successfully: {video_path}")
         except ValueError:
@@ -116,6 +165,11 @@ class PiCameraBot:
                 "Choose an option:",
                 reply_markup=self.create_main_keyboard()
             )
+            # Send star payment request
+            await update.message.reply_text(
+                "Feed the fish",
+                reply_markup=self.create_star_keyboard()
+            )
             logger.info(f"Latest video sent successfully: {latest_video}")
         except Exception as e:
             logger.error(f"Error sending latest video: {e}", exc_info=True)
@@ -141,6 +195,11 @@ class PiCameraBot:
                 "Choose an option:",
                 reply_markup=self.create_main_keyboard()
             )
+            # Send star payment request
+            await update.message.reply_text(
+                "Feed the fish",
+                reply_markup=self.create_star_keyboard()
+            )
             logger.info(f"Latest photo sent successfully: {latest_photo}")
         except Exception as e:
             logger.error(f"Error sending latest photo: {e}", exc_info=True)
@@ -158,6 +217,11 @@ class PiCameraBot:
         self.application.add_handler(MessageHandler(filters.Regex("^📸 Capture Photo$"), self.handle_photo))
         self.application.add_handler(MessageHandler(filters.Regex("^🎥 Show Latest Video$"), self.handle_latest_video))
         self.application.add_handler(MessageHandler(filters.Regex("^🖼️ Show Latest Photo$"), self.handle_latest_photo))
+
+        # Star payment handlers
+        self.application.add_handler(CallbackQueryHandler(self.handle_star_callback, pattern="^star$"))
+        self.application.add_handler(PreCheckoutQueryHandler(self.pre_checkout_callback))
+        self.application.add_handler(MessageHandler(filters.SUCCESSFUL_PAYMENT, self.successful_payment_callback))
 
         # Video recording conversation
         video_handler = ConversationHandler(

@@ -18,5 +18,8 @@ FILES_LIMIT_VIDEO = 4
 FILES_LIMIT_IMAGE = 4
 FILE_DATE_FORMAT = '%Y%m%d_%H_%M_%S'
 
+# Payment settings
+PAYMENT_TOKEN = "YOUR_PAYMENT_TOKEN"  # Get this from @BotFather
+
 # Bot settings
 from settings import TOKEN 
