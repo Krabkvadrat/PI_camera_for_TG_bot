@@ -48,13 +48,13 @@ class PiCameraBot:
         currency = "XTR"  # Telegram's native currency
         price = 1  # 1 XTR for one star
         
-        prices = [LabeledPrice("Star", price * 100)]  # Price in cents
+        prices = [LabeledPrice("Star", price)]  # Price in cents
         
         await query.message.reply_invoice(
             title=title,
             description=description,
             payload=payload,
-            provider_token=PAYMENT_TOKEN,
+            provider_token=None,  # No provider token needed for XTR
             currency=currency,
             prices=prices
         )
@@ -84,14 +84,14 @@ class PiCameraBot:
             await update.message.reply_text("Taking a photo...", reply_markup=ReplyKeyboardRemove())
             photo_path = self.camera.capture_photo()
             await update.message.reply_photo(open(photo_path, 'rb'))
+            # Send ready message with star button
+            await update.message.reply_text(
+                "Your photo is ready!",
+                reply_markup=self.create_star_keyboard()
+            )
             await update.message.reply_text(
                 "Choose an option:",
                 reply_markup=self.create_main_keyboard()
-            )
-            # Send star payment request
-            await update.message.reply_text(
-                "Feed the fish",
-                reply_markup=self.create_star_keyboard()
             )
             logger.info(f"Photo sent successfully: {photo_path}")
         except Exception as e:
@@ -122,14 +122,14 @@ class PiCameraBot:
             await update.message.reply_text(f"Recording video for {duration} seconds...")
             video_path = self.camera.record_video(duration)
             await update.message.reply_video(open(video_path, 'rb'))
+            # Send ready message with star button
+            await update.message.reply_text(
+                "Your video is ready!",
+                reply_markup=self.create_star_keyboard()
+            )
             await update.message.reply_text(
                 "Choose an option:",
                 reply_markup=self.create_main_keyboard()
-            )
-            # Send star payment request
-            await update.message.reply_text(
-                "Feed the fish",
-                reply_markup=self.create_star_keyboard()
             )
             logger.info(f"Video sent successfully: {video_path}")
         except ValueError:
@@ -161,14 +161,14 @@ class PiCameraBot:
 
             latest_video = latest_videos[0]
             await update.message.reply_video(open(latest_video, 'rb'))
+            # Send ready message with star button
+            await update.message.reply_text(
+                "Your video is ready!",
+                reply_markup=self.create_star_keyboard()
+            )
             await update.message.reply_text(
                 "Choose an option:",
                 reply_markup=self.create_main_keyboard()
-            )
-            # Send star payment request
-            await update.message.reply_text(
-                "Feed the fish",
-                reply_markup=self.create_star_keyboard()
             )
             logger.info(f"Latest video sent successfully: {latest_video}")
         except Exception as e:
@@ -191,14 +191,14 @@ class PiCameraBot:
 
             latest_photo = latest_photos[0]
             await update.message.reply_photo(open(latest_photo, 'rb'))
+            # Send ready message with star button
+            await update.message.reply_text(
+                "Your photo is ready!",
+                reply_markup=self.create_star_keyboard()
+            )
             await update.message.reply_text(
                 "Choose an option:",
                 reply_markup=self.create_main_keyboard()
-            )
-            # Send star payment request
-            await update.message.reply_text(
-                "Feed the fish",
-                reply_markup=self.create_star_keyboard()
             )
             logger.info(f"Latest photo sent successfully: {latest_photo}")
         except Exception as e:
