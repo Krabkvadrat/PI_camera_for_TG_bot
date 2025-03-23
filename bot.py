@@ -6,7 +6,7 @@ from telegram.ext import (
 )
 from config import (
     TOKEN, MIN_VIDEO_DURATION, MAX_VIDEO_DURATION,
-    IMAGE_DIR, VIDEO_DIR, PAYMENT_TOKEN
+    IMAGE_DIR, VIDEO_DIR
 )
 from camera_handler import CameraHandler
 from file_manager import FileManager
